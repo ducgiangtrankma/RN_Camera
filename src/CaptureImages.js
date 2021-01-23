@@ -14,11 +14,15 @@ import {
 } from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import CameraRoll from '@react-native-community/cameraroll';
+import ModalPreview from './ModalPreview';
 export default function CaptureImage(props) {
   const camera = useRef(null);
   const scrollViewRef = useRef();
   const [images, setimages] = useState([]);
+  const [imagePreview, setimagePreview] = useState(null);
   const [flash, setFlash] = useState(RNCamera.Constants.FlashMode.off);
+  //Modal state
+  const [isVisibleModal, setisVisibleModal] = useState(false);
   const getPermissionAndroid = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -92,7 +96,10 @@ export default function CaptureImage(props) {
     const temp = images.filter((e) => e !== image);
     setimages(temp);
   };
-  const previewImgae = (image) => {};
+  const previewImgae = (image) => {
+    setimagePreview(image);
+    setisVisibleModal(true);
+  };
   return (
     <View style={styles.container}>
       <StatusBar hidden />
@@ -178,6 +185,13 @@ export default function CaptureImage(props) {
           ))}
         </ScrollView>
       </View>
+      <ModalPreview
+        isVisible={isVisibleModal}
+        onBackdropPress={() => {
+          setisVisibleModal(false);
+        }}
+        imagePreview={imagePreview}
+      />
     </View>
   );
 }

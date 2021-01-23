@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "@react-native-community/cameraroll": "^4.0.1",
+    "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-camera": "^3.40.0",
+    "react-native-modal": "^11.6.1",
+    "react-native-modals": "^0.22.3",
     "react-native-permissions": "^2.2.2",
     "react-native-qrcode-scanner": "^1.4.1"
   },
