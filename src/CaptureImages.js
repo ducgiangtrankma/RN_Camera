@@ -2,24 +2,74 @@ import React, {useRef, useState} from 'react';
 import {
   View,
   Image,
-  SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   Text,
   ScrollView,
   Dimensions,
   StatusBar,
+  PermissionsAndroid,
+  Alert,
+  Platform,
 } from 'react-native';
 import {RNCamera} from 'react-native-camera';
+import CameraRoll from '@react-native-community/cameraroll';
 export default function CaptureImage(props) {
   const camera = useRef(null);
   const scrollViewRef = useRef();
   const [images, setimages] = useState([]);
   const [flash, setFlash] = useState(RNCamera.Constants.FlashMode.off);
+  const getPermissionAndroid = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Image Download Permission',
+          message: 'Your permission is required to save images to your device',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        return true;
+      }
+      Alert.alert(
+        'Save remote Image',
+        'Grant Me Permission to save Image',
+        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        {cancelable: false},
+      );
+    } catch (err) {
+      Alert.alert(
+        'Save remote Image',
+        'Failed to save Image: ' + err.message,
+        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        {cancelable: false},
+      );
+    }
+  };
   const capture = async () => {
     console.log(RNCamera.Constants.FlashMode);
     const options = {quality: 0.5, base64: false};
     const data = await camera.current.takePictureAsync(options);
+    if (Platform.OS === 'android') {
+      const granted = await getPermissionAndroid();
+      if (granted) {
+        CameraRoll.save(data.uri, {
+          type: 'photo', // optional
+          album: 'CameraApp', // optional
+        })
+          .then((res) => console.log(res))
+          .catch((err) => console.log(err));
+      }
+    } else {
+      CameraRoll.save(data.uri, {
+        type: 'photo',
+        album: 'CameraApp',
+      })
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    }
     setimages([...images, data.uri]);
     console.log('Debug', data);
   };
