@@ -2,6 +2,7 @@
   package="com.rn_camera">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission-sdk-23 android:name="android.permission.VIBRATE"/>
   <!-- Required -->
     <uses-permission android:name="android.permission.CAMERA" />
 

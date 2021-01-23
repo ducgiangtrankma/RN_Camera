@@ -1,0 +1,183 @@
+import React, {useRef, useState} from 'react';
+import {
+  View,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+  Dimensions,
+  StatusBar,
+} from 'react-native';
+import {RNCamera} from 'react-native-camera';
+export default function CaptureImage(props) {
+  const camera = useRef(null);
+  const scrollViewRef = useRef();
+  const [images, setimages] = useState([]);
+  const [flash, setFlash] = useState(RNCamera.Constants.FlashMode.off);
+  const capture = async () => {
+    console.log(RNCamera.Constants.FlashMode);
+    const options = {quality: 0.5, base64: false};
+    const data = await camera.current.takePictureAsync(options);
+    setimages([...images, data.uri]);
+    console.log('Debug', data);
+  };
+  const onChangeFlashMode = (value) => {
+    switch (value) {
+      case 0:
+        setFlash(1);
+        break;
+      case 1:
+        setFlash(2);
+        break;
+      case 2:
+        setFlash(0);
+        break;
+      default:
+        break;
+    }
+  };
+  const removeImage = (image) => {
+    const temp = images.filter((e) => e !== image);
+    setimages(temp);
+  };
+  const previewImgae = (image) => {};
+  return (
+    <View style={styles.container}>
+      <StatusBar hidden />
+      <RNCamera
+        ref={camera}
+        style={styles.preview}
+        type={RNCamera.Constants.Type.back}
+        flashMode={flash}
+        androidCameraPermissionOptions={{
+          title: 'Permission to use camera',
+          message: 'We need your permission to use your camera',
+          buttonPositive: 'Ok',
+          buttonNegative: 'Cancel',
+        }}
+        androidRecordAudioPermissionOptions={{
+          title: 'Permission to use audio recording',
+          message: 'We need your permission to use your audio',
+          buttonPositive: 'Ok',
+          buttonNegative: 'Cancel',
+        }}>
+        <View style={styles.menuCamera}>
+          <TouchableOpacity
+            onPress={() => onChangeFlashMode(flash)}
+            style={styles.btnFlashControl}>
+            {flash === 0 ? (
+              <Image
+                style={styles.flashIcon}
+                source={require('../src/assets/flashOff1.png')}
+              />
+            ) : flash === 1 ? (
+              <Image
+                style={styles.flashIcon}
+                source={require('../src/assets/flashOn.png')}
+              />
+            ) : (
+              <Image
+                style={styles.flashIcon}
+                source={require('../src/assets/flashAuto.png')}
+              />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btnFlip}>
+            <Image
+              style={styles.flashIcon}
+              source={require('../src/assets/flipCamera.png')}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.btnCapture} onPress={() => capture()}>
+          <Image
+            style={styles.captureIcon}
+            source={require('../src/assets/capture.png')}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnCancel}>
+          <Text style={styles.txtCancel}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnDone}>
+          <Text style={styles.txtCancel}>Done</Text>
+        </TouchableOpacity>
+      </RNCamera>
+
+      <View style={styles.previewPhoto}>
+        <ScrollView
+          ref={scrollViewRef}
+          onContentSizeChange={() =>
+            scrollViewRef.current.scrollToEnd({animated: true})
+          }
+          showsHorizontalScrollIndicator={false}
+          horizontal>
+          {images.map((e, index) => (
+            <View key={index}>
+              <TouchableOpacity onPress={() => previewImgae(e)}>
+                <Image style={styles.imgPreview} source={{uri: e}} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btnCleanImage}
+                onPress={() => removeImage(e)}>
+                <Image source={require('../src/assets/x.png')} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  preview: {
+    flex: 4,
+  },
+  btnCapture: {position: 'absolute', bottom: 0, alignSelf: 'center'},
+  btnFlashControl: {
+    marginTop: 5,
+    marginLeft: 15,
+  },
+  previewPhoto: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+  btnCancel: {
+    position: 'absolute',
+    bottom: 15,
+    left: 15,
+    alignSelf: 'flex-start',
+  },
+  txtCancel: {
+    fontSize: 18,
+    color: '#FFFFFF',
+  },
+  btnDone: {
+    position: 'absolute',
+    bottom: 15,
+    right: 15,
+    alignSelf: 'flex-end',
+  },
+  btnFlip: {
+    marginTop: 5,
+    marginLeft: Dimensions.get('screen').width - 80,
+  },
+  flashIcon: {height: 25, width: 25, marginBottom: 5},
+  captureIcon: {height: 40, width: 40, marginBottom: 5},
+  imgPreview: {height: 100, width: 100, marginRight: 5, borderRadius: 5},
+  menuCamera: {
+    flexDirection: 'row',
+    marginTop: 15,
+  },
+  btnCleanImage: {
+    position: 'absolute',
+    top: 5,
+    left: 5,
+  },
+});
