@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {View} from 'react-native';
 import CaptureImage from './src/CaptureImages';
 import {ModalPortal} from 'react-native-modals';

@@ -21,6 +21,7 @@ export default function CaptureImage(props) {
   const [images, setimages] = useState([]);
   const [imagePreview, setimagePreview] = useState(null);
   const [flash, setFlash] = useState(RNCamera.Constants.FlashMode.off);
+  const [type, setType] = useState(RNCamera.Constants.Type.back);
   //Modal state
   const [isVisibleModal, setisVisibleModal] = useState(false);
   const getPermissionAndroid = async () => {
@@ -51,6 +52,11 @@ export default function CaptureImage(props) {
         {cancelable: false},
       );
     }
+  };
+  const changeType = () => {
+    type === 0
+      ? setType(RNCamera.Constants.Type.front)
+      : setType(RNCamera.Constants.Type.back);
   };
   const capture = async () => {
     console.log(RNCamera.Constants.FlashMode);
@@ -106,7 +112,7 @@ export default function CaptureImage(props) {
       <RNCamera
         ref={camera}
         style={styles.preview}
-        type={RNCamera.Constants.Type.back}
+        type={type} // back : sau - front : truoc
         flashMode={flash}
         androidCameraPermissionOptions={{
           title: 'Permission to use camera',
@@ -141,7 +147,7 @@ export default function CaptureImage(props) {
               />
             )}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btnFlip}>
+          <TouchableOpacity style={styles.btnFlip} onPress={changeType}>
             <Image
               style={styles.flashIcon}
               source={require('../src/assets/flipCamera.png')}
